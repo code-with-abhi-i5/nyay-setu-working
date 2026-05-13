@@ -101,6 +101,7 @@ export default function NotificationBell() {
             {/* Bell Icon */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
+                aria-label="Toggle notifications"
                 style={{
                     position: 'relative',
                     background: isOpen ? 'rgba(139, 92, 246, 0.2)' : 'var(--bg-glass-strong)',
@@ -314,6 +315,7 @@ export default function NotificationBell() {
                                                 e.stopPropagation();
                                                 clearNotification(notif.id);
                                             }}
+                                            aria-label="Dismiss notification"
                                             style={{
                                                 position: 'absolute',
                                                 top: '0.75rem',
