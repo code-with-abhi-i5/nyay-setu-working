@@ -12,23 +12,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
-      - name: Install Backend Dependencies
-        run: |
-          cd backend/nyaysetu-backend
-          pip install -r requirements.txt
-
-      - name: Run Backend Tests
-        run: |
-          cd backend/nyaysetu-backend
-          python -m pytest
+    - name: Run Backend Tests
+      run: |
+        cd backend/nyaysetu-backend
+        mvn test
           
 
   frontend-tests:
@@ -72,6 +68,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run NLP Tests
+        env:
+          GROQ_API_KEY: dummy_key
+          GEMINI_API_KEY: dummy_key
         run: |
           cd nlp-orchestrator
           python -m pytest
