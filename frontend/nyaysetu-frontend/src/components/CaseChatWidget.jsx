@@ -1,10 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, X, Loader2, Maximize2, Minimize2, Sparkles, Copy } from 'lucide-react';
+import {
+    Send,
+    Bot,
+    User,
+    X,
+    MessageSquare,
+    Loader2,
+    MinusCircle,
+    Maximize2,
+    Minimize2,
+    Sparkles,
+    Copy
+} from 'lucide-react';
+
 import { vakilFriendAPI } from '../services/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export default function CaseChatWidget({ caseId, caseTitle }) {
+
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -26,6 +40,7 @@ export default function CaseChatWidget({ caseId, caseTitle }) {
     const handleToggle = () => {
         if (!isOpen) {
             setIsOpen(true);
+
             if (!sessionId && !isStarting) {
                 startChatSession();
             }
@@ -37,49 +52,83 @@ export default function CaseChatWidget({ caseId, caseTitle }) {
     const startChatSession = async () => {
         try {
             setIsStarting(true);
+
             const response = await vakilFriendAPI.startCaseSession(caseId);
 
             setSessionId(response.data.sessionId);
 
-            setMessages([{
-                role: 'assistant',
-                content: response.data.message || `I am ready to help with case: **${caseTitle}**`
-            }]);
+            setMessages([
+                {
+                    role: 'assistant',
+                    content:
+                        response.data.message ||
+                        `I am ready to help with case: **${caseTitle}**`
+                }
+            ]);
 
         } catch (error) {
+
             console.error("Failed to start case chat:", error);
-            setMessages([{
-                role: 'assistant',
-                content: "⚠️ Failed to connect to AI assistant. Please try again later."
-            }]);
+
+            setMessages([
+                {
+                    role: 'assistant',
+                    content:
+                        "⚠️ Failed to connect to AI assistant. Please try again later."
+                }
+            ]);
+
         } finally {
             setIsStarting(false);
         }
     };
 
     const sendMessage = async () => {
+
         if (!inputMessage.trim() || isLoading) return;
 
         const userMsg = inputMessage.trim();
+
         setInputMessage('');
 
-        setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+        setMessages(prev => [
+            ...prev,
+            {
+                role: 'user',
+                content: userMsg
+            }
+        ]);
+
         setIsLoading(true);
 
         try {
-            const response = await vakilFriendAPI.sendMessage(sessionId, userMsg);
 
-            setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: response.data.message
-            }]);
+            const response = await vakilFriendAPI.sendMessage(
+                sessionId,
+                userMsg
+            );
+
+            setMessages(prev => [
+                ...prev,
+                {
+                    role: 'assistant',
+                    content: response.data.message
+                }
+            ]);
 
         } catch (error) {
+
             console.error("Failed to send message:", error);
-            setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: "❌ Error sending message. Please try again."
-            }]);
+
+            setMessages(prev => [
+                ...prev,
+                {
+                    role: 'assistant',
+                    content:
+                        "❌ Error sending message. Please try again."
+                }
+            ]);
+
         } finally {
             setIsLoading(false);
         }
@@ -94,6 +143,7 @@ export default function CaseChatWidget({ caseId, caseTitle }) {
     };
 
     const handleKeyPress = (e) => {
+
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
@@ -101,6 +151,7 @@ export default function CaseChatWidget({ caseId, caseTitle }) {
     };
 
     if (!isOpen) {
+
         return (
             <button
                 onClick={handleToggle}
@@ -113,10 +164,28 @@ export default function CaseChatWidget({ caseId, caseTitle }) {
                     background: 'var(--color-primary)',
                     color: 'white',
                     border: 'none',
+
+    
+                    boxShadow: '0 4px 20px rgba(30, 42, 68, 0.4)',
+
                     cursor: 'pointer',
-                    zIndex: 9999
+                    zIndex: 9999,
+
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'transform 0.2s'
                 }}
-                title="Ask AI Assistant"
+
+                onMouseOver={(e) =>
+                    e.currentTarget.style.transform = 'scale(1.1)'
+                }
+
+                onMouseOut={(e) =>
+                    e.currentTarget.style.transform = 'scale(1)'
+                }
+
+                title="Ask Nyay Saarthi about this case"
             >
                 <Sparkles size={28} />
             </button>
@@ -124,88 +193,235 @@ export default function CaseChatWidget({ caseId, caseTitle }) {
     }
 
     return (
-        <div style={{
-            position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
-            width: isMinimized ? '300px' : '400px',
-            height: isMinimized ? 'auto' : '600px',
-            background: 'var(--bg-glass-strong)',
-            borderRadius: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            zIndex: 9999
-        }}>
+        <div
+            style={{
+                position: 'fixed',
+                bottom: '2rem',
+                right: '2rem',
+                width: isMinimized ? '300px' : '400px',
+                height: isMinimized ? 'auto' : '600px',
 
-            {/* HEADER */}
-            <div style={{
-                padding: '1rem',
-                background: 'var(--color-primary)',
-                color: 'white',
+                
+                maxHeight: '80vh',
+
+                background: 'var(--bg-glass-strong)',
+
+                
+                backdropFilter: 'var(--glass-blur)',
+                border: 'var(--border-glass-strong)',
+
+                borderRadius: '1rem',
+
+                
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+
+                zIndex: 9999,
                 display: 'flex',
-                justifyContent: 'space-between'
-            }}>
-                <div>
-                    <strong>Nyay Saarthi</strong>
-                    <div style={{ fontSize: '0.75rem' }}>AI Case Assistant</div>
+                flexDirection: 'column',
+                overflow: 'hidden',
+
+                
+                transition: 'all 0.3s ease'
+            }}
+        >
+
+            {/* Header */}
+
+            <div
+                style={{
+                    padding: '1rem',
+                    background: 'var(--color-primary)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderTopLeftRadius: '1rem',
+                    borderTopRightRadius: '1rem'
+                }}
+            >
+
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem'
+                    }}
+                >
+
+                    <Sparkles size={20} color="white" />
+
+                    <div>
+                        <h3
+                            style={{
+                                margin: 0,
+                                fontSize: '1rem',
+                                fontWeight: '600',
+                                color: 'white'
+                            }}
+                        >
+                            Nyay Saarthi
+                        </h3>
+
+                        <p
+                            style={{
+                                margin: 0,
+                                fontSize: '0.75rem',
+                                color: 'rgba(255, 255, 255, 0.9)'
+                            }}
+                        >
+                            AI Case Assistant
+                        </p>
+                    </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button onClick={() => setIsMinimized(!isMinimized)}>
-                        {isMinimized ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
+
+                    <button
+                        onClick={() => setIsMinimized(!isMinimized)}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'white',
+                            cursor: 'pointer',
+                            padding: '4px'
+                        }}
+                    >
+                        {isMinimized
+                            ? <Maximize2 size={16} />
+                            : <Minimize2 size={16} />
+                        }
                     </button>
-                    <button onClick={() => setIsOpen(false)}>
-                        <X size={16} />
+
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'white',
+                            cursor: 'pointer',
+                            padding: '4px'
+                        }}
+                    >
+                        <X size={18} />
                     </button>
                 </div>
             </div>
 
-            {/* CHAT */}
+            {/* Chat Area */}
+
             {!isMinimized && (
                 <>
-                    <div style={{
-                        flex: 1,
-                        padding: '1rem',
-                        overflowY: 'auto',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '1rem'
-                    }}>
+                    <div
+                        style={{
+                            flex: 1,
+                            padding: '1rem',
+                            overflowY: 'auto',
+                            background: 'transparent',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '1rem'
+                        }}
+                    >
+
                         {isStarting ? (
-                            <Loader2 className="animate-spin" />
+
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    padding: '2rem',
+                                    color: 'var(--text-secondary)'
+                                }}
+                            >
+                                <Loader2
+                                    size={24}
+                                    style={{
+                                        animation:
+                                            'spin 1s linear infinite'
+                                    }}
+                                />
+                            </div>
+
                         ) : (
+
                             messages.map((msg, idx) => (
+
                                 <div
                                     key={idx}
                                     style={{
-                                        alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                                        alignSelf:
+                                            msg.role === 'user'
+                                                ? 'flex-end'
+                                                : 'flex-start',
+
                                         maxWidth: '85%',
-                                        padding: '0.75rem',
+
+                                        background:
+                                            msg.role === 'user'
+                                                ? 'var(--color-accent)'
+                                                : 'var(--bg-white)',
+
+                                        color:
+                                            msg.role === 'user'
+                                                ? 'white'
+                                                : 'var(--text-main)',
+
+                                        padding: '0.75rem 1rem',
+
                                         borderRadius: '1rem',
-                                        background: msg.role === 'user' ? '#2563eb' : '#fff',
-                                        color: msg.role === 'user' ? '#fff' : '#000',
+
+                                        borderBottomRightRadius:
+                                            msg.role === 'user'
+                                                ? '0.25rem'
+                                                : '1rem',
+
+                                        borderBottomLeftRadius:
+                                            msg.role === 'user'
+                                                ? '1rem'
+                                                : '0.25rem',
+
+                                        fontSize: '0.9rem',
+                                        lineHeight: '1.5',
+
+                                        /* RESTORED */
+                                        boxShadow:
+                                            '0 2px 4px rgba(0,0,0,0.05)',
+
                                         position: 'relative'
                                     }}
                                 >
-                                    {/* MESSAGE TEXT */}
-                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
+                                    >
                                         {msg.content}
                                     </ReactMarkdown>
 
-                                    {/* COPY BUTTON (ONLY AI) */}
+                                    {/* COPY BUTTON */}
+
                                     {msg.role === 'assistant' && (
+
                                         <button
-                                            onClick={() => copyToClipboard(msg.content)}
+                                            onClick={() =>
+                                                copyToClipboard(msg.content)
+                                            }
+
                                             style={{
                                                 position: 'absolute',
-                                                top: 5,
-                                                right: 5,
+                                                top: '8px',
+                                                right: '8px',
                                                 background: 'transparent',
                                                 border: 'none',
-                                                cursor: 'pointer'
+                                                cursor: 'pointer',
+                                                color:
+                                                    'var(--text-secondary)',
+                                                padding: '2px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
                                             }}
-                                            title="Copy"
+
+                                            title="Copy to clipboard"
                                         >
                                             <Copy size={14} />
                                         </button>
@@ -214,28 +430,97 @@ export default function CaseChatWidget({ caseId, caseTitle }) {
                             ))
                         )}
 
+                        {isLoading && (
+
+                            <div
+                                style={{
+                                    alignSelf: 'flex-start',
+                                    background: 'var(--bg-white)',
+                                    padding: '0.75rem 1rem',
+                                    borderRadius: '1rem',
+                                    borderBottomLeftRadius: '0.25rem',
+
+                                    /* RESTORED */
+                                    boxShadow:
+                                        '0 2px 4px rgba(0,0,0,0.05)'
+                                }}
+                            >
+                                <Loader2
+                                    size={16}
+                                    style={{
+                                        animation:
+                                            'spin 1s linear infinite',
+                                        color:
+                                            'var(--text-secondary)'
+                                    }}
+                                />
+                            </div>
+                        )}
+
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* INPUT */}
-                    <div style={{
-                        padding: '1rem',
-                        display: 'flex',
-                        gap: '0.5rem'
-                    }}>
+                    {/* Input Area */}
+
+                    <div
+                        style={{
+                            padding: '1rem',
+                            borderTop: 'var(--border-glass)',
+                            background: 'var(--bg-glass-strong)',
+                            display: 'flex',
+                            gap: '0.5rem'
+                        }}
+                    >
+
                         <input
+                            type="text"
                             value={inputMessage}
-                            onChange={(e) => setInputMessage(e.target.value)}
-                            onKeyDown={handleKeyPress}
+                            onChange={(e) =>
+                                setInputMessage(e.target.value)
+                            }
+                            onKeyPress={handleKeyPress}
                             placeholder="Ask about this case..."
+                            disabled={isLoading || isStarting}
+
                             style={{
                                 flex: 1,
                                 padding: '0.75rem',
-                                borderRadius: '0.5rem'
+                                borderRadius: '0.5rem',
+                                border: 'var(--border-glass)',
+                                background: 'var(--bg-white)',
+                                color: 'var(--text-main)',
+                                outline: 'none'
                             }}
                         />
 
-                        <button onClick={sendMessage} disabled={isLoading}>
+                        <button
+                            onClick={sendMessage}
+                            disabled={
+                                isLoading ||
+                                isStarting ||
+                                !inputMessage.trim()
+                            }
+
+                            style={{
+                                background: 'var(--color-accent)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.5rem',
+                                padding: '0.75rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                opacity:
+                                    (
+                                        isLoading ||
+                                        isStarting ||
+                                        !inputMessage.trim()
+                                    )
+                                        ? 0.5
+                                        : 1
+                            }}
+                        >
                             <Send size={18} />
                         </button>
                     </div>
