@@ -722,7 +722,7 @@ export default function Constitution() {
                                         whileHover={{ y: -8, scale: 1.02 }}
                                         onClick={() => setSelectedPart(part)}
                                         style={{
-                                            padding: '2.5rem',
+                                            padding: '4rem 2.5rem 2.5rem',
                                             background: 'var(--bg-surface)',
                                             borderRadius: '1.5rem',
                                             border: '1px solid var(--border-light)',
