@@ -15,6 +15,9 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
         setError('');
         setLoading(true);
 
+        console.log("API_BASE_URL:", API_BASE_URL);
+        console.log("Request URL:", `${API_BASE_URL}/api/auth/forgot-password`);
+
         try {
             const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
                 method: 'POST',
@@ -23,8 +26,15 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
             });
 
             if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.message || 'Failed to send reset email');
+                let errorMessage='Failed to send reset email';
+                try{
+                    const text=await response.text();
+                    const data=text? JSON.parse(text) : {};
+                    errorMessage=data.message||errorMessage;
+                }catch(e){
+                    console.error('Invalid JSON response');
+                }
+                throw new Error(errorMessage);
             }
 
             setSuccess(true);
